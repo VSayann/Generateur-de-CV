@@ -27,34 +27,17 @@ if (empty($_POST['html'])) {
     exit('HTML manquant');
 }
 
-ob_start();
-include 'cv.php';
-$htmlContent = ob_get_clean();
-
-$cssPath = __DIR__ . '/index.css';
-
-$html = '
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>CV</title>
-    <style>' . file_get_contents($cssPath) . '</style>
-</head>
-<body>
-' . $htmlContent . '
-</body>
-</html>';
-
-
+$html = $_POST['html'];
+$css = file_get_contents(__DIR__ . '/index.css');
 try {
     require __DIR__ . '/vendor/autoload.php';
+
+    $options = new Options();
     $options->set('isHtml5ParserEnabled', true);
     $options->set('isRemoteEnabled', true);
     $options->setChroot(__DIR__);
-
-    $dompdf = new Dompdf($options);
-    $dompdf->setBasePath(__DIR__);
+    $dompdf = new Dompdf();
+    $dompdf->setOptions($options);
     $dompdf->loadHtml($html);
     $dompdf->setPaper('A4', 'portrait');
     $dompdf->render();
